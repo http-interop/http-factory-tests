@@ -1,0 +1,32 @@
+{
+    "name": "http-interop/http-factory-tests",
+    "description": "Unit tests for HTTP factories",
+    "keywords": [
+        "psr-7",
+        "psr-17",
+        "http",
+        "factory",
+        "test"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "PHP-FIG",
+            "homepage": "http://www.php-fig.org/"
+        }
+    ],
+    "require": {
+        "http-interop/http-factory": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Http\\FactoryTest\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/http-interop/http-factory.git"
+        }
+    ]
+}
