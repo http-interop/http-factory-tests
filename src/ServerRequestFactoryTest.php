@@ -67,10 +67,11 @@ class ServerRequestFactoryTest extends TestCase
     public function testCreateServerRequestFromGlobals()
     {
         $_SERVER['REQUEST_METHOD'] = $method = 'GET';
+        $_SERVER['REQUEST_URI'] = $path = '/test';
         $_SERVER['QUERY_STRING'] = $qs = 'foo=1&bar=true';
         $_SERVER['HTTP_HOST'] = $host = 'example.org';
 
-        $uri = "http://{$host}/?$qs";
+        $uri = "http://{$host}{$path}?$qs";
 
         $request = $this->factory->createServerRequestFromGlobals();
 
