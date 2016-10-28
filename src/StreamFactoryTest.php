@@ -43,4 +43,13 @@ class StreamFactoryTest extends TestCase
 
         $this->assertStream($stream, $string);
     }
+
+    public function testCreateStreamFromAString()
+    {
+        $string = 'would you like some crumpets?';
+
+        $stream = $this->factory->createStream($string);
+
+        $this->assertStream($stream, $string);
+    }
 }
