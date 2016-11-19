@@ -1,6 +1,6 @@
 <?php
 
-namespace Http\FactoryTest;
+namespace Interop\Http\Factory;
 
 use Psr\Http\Message\UploadedFileInterface;
 

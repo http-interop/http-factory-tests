@@ -1,6 +1,6 @@
 <?php
 
-namespace Http\FactoryTest;
+namespace Interop\Http\Factory;
 
 use Interop\Http\Factory\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
