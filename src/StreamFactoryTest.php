@@ -25,30 +25,32 @@ class StreamFactoryTest extends TestCase
 
     public function testCreateStream()
     {
-        $resource = tmpfile();
+        $string = 'would you like some crumpets?';
 
-        $stream = $this->factory->createStream($resource);
+        $stream = $this->factory->createStream($string);
 
-        $this->assertStream($stream, '');
+        $this->assertStream($stream, $string);
     }
 
-    public function testCreateStreamWithContent()
+    public function testCreateStreamFromFile()
+    {
+        $string = 'would you like some crumpets?';
+        $filename = tempnam(sys_get_temp_dir(), uniqid());
+        file_put_contents($filename, $string);
+
+        $stream = $this->factory->createStreamFromFile($filename);
+
+        $this->assertStream($stream, $string);
+    }
+
+    public function testCreateStreamFromResource()
     {
         $string = 'would you like some crumpets?';
 
         $resource = tmpfile();
         fwrite($resource, $string);
 
-        $stream = $this->factory->createStream($resource);
-
-        $this->assertStream($stream, $string);
-    }
-
-    public function testCreateStreamFromAString()
-    {
-        $string = 'would you like some crumpets?';
-
-        $stream = $this->factory->createStream($string);
+        $stream = $this->factory->createStreamFromResource($resource);
 
         $this->assertStream($stream, $string);
     }
