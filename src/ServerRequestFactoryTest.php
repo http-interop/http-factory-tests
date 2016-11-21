@@ -35,45 +35,75 @@ class ServerRequestFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataMethods
-     */
-    public function testCreateServerRequest($method)
+    public function dataServer()
     {
-        $uri = 'http://example.com/';
+        $data = [];
 
-        $request = $this->factory->createServerRequest($method, $uri);
+        foreach ($this->dataMethods() as $methodData) {
+            $data[] = [
+                [
+                    'REQUEST_METHOD' => $methodData[0],
+                    'REQUEST_URI' => '/test',
+                    'QUERY_STRING' => 'foo=1&bar=true',
+                    'HTTP_HOST' => 'example.org',
+                ]
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider dataServer
+     */
+    public function testCreateServerRequest($server)
+    {
+        $method = $server['REQUEST_METHOD'];
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
+
+        $request = $this->factory->createServerRequest($server);
 
         $this->assertServerRequest($request, $method, $uri);
     }
 
-    public function testCreateServerRequestWithUri()
+    /**
+     * @dataProvider dataServer
+     */
+    public function testCreateServerRequestWithOverridenMethod($server)
+    {
+        $method = 'OPTIONS';
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
+
+        $request = $this->factory->createServerRequest($server, $method);
+
+        $this->assertServerRequest($request, $method, $uri);
+    }
+
+    /**
+     * @dataProvider dataServer
+     */
+    public function testCreateServerRequestWithOverridenUri($server)
+    {
+        $method = $server['REQUEST_METHOD'];
+        $uri = "https://example.com/foobar?bar=2&foo=false";
+
+        $request = $this->factory->createServerRequest($server, null, $uri);
+
+        $this->assertServerRequest($request, $method, $uri);
+    }
+
+    /**
+     * @dataProvider dataServer
+     */
+    public function testCreateServerRequestWithUriObject($server)
     {
         $factoryClass = URI_FACTORY;
         $uriFactory = new $factoryClass();
 
-        $method = 'GET';
-        $uri = 'http://example.com/';
+        $method = $server['REQUEST_METHOD'];
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
 
-        $request = $this->factory->createServerRequest($method, $uriFactory->createUri($uri));
-
-        $this->assertServerRequest($request, $method, $uri);
-    }
-
-    /**
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
-     */
-    public function testCreateServerRequestFromGlobals()
-    {
-        $_SERVER['REQUEST_METHOD'] = $method = 'GET';
-        $_SERVER['REQUEST_URI'] = $path = '/test';
-        $_SERVER['QUERY_STRING'] = $qs = 'foo=1&bar=true';
-        $_SERVER['HTTP_HOST'] = $host = 'example.org';
-
-        $uri = "http://{$host}{$path}?$qs";
-
-        $request = $this->factory->createServerRequestFromGlobals();
+        $request = $this->factory->createServerRequest(array(), $method, $uriFactory->createUri($uri));
 
         $this->assertServerRequest($request, $method, $uri);
     }
