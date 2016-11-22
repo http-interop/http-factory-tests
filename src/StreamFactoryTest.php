@@ -3,7 +3,6 @@
 namespace Http\FactoryTest;
 
 use Interop\Http\Factory\StreamFactoryInterface;
-use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\StreamInterface;
 
 class StreamFactoryTest extends TestCase
@@ -35,7 +34,8 @@ class StreamFactoryTest extends TestCase
     public function testCreateStreamFromFile()
     {
         $string = 'would you like some crumpets?';
-        $filename = tempnam(sys_get_temp_dir(), uniqid());
+        $filename = $this->createTemporaryFile();
+
         file_put_contents($filename, $string);
 
         $stream = $this->factory->createStreamFromFile($filename);
@@ -46,9 +46,7 @@ class StreamFactoryTest extends TestCase
     public function testCreateStreamFromResource()
     {
         $string = 'would you like some crumpets?';
-
-        $resource = tmpfile();
-        fwrite($resource, $string);
+        $resource = $this->createTemporaryResource($string);
 
         $stream = $this->factory->createStreamFromResource($resource);
 
