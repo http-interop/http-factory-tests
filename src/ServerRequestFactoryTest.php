@@ -107,4 +107,39 @@ class ServerRequestFactoryTest extends TestCase
 
         $this->assertServerRequest($request, $method, $uri);
     }
+
+    public function testCreateServerRequestDoesNotReadServerSuperglobal()
+    {
+        $_SERVER = ['HTTP_X_FOO' => 'bar'];
+        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $this->assertEmpty($request->getServerParams());
+    }
+
+    public function testCreateServerRequestDoesNotReadCookieSuperglobal()
+    {
+        $_COOKIE = ['foo' => 'bar'];
+        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $this->assertEmpty($request->getCookieParams());
+    }
+
+    public function testCreateServerRequestDoesNotReadGetSuperglobal()
+    {
+        $_GET = ['foo' => 'bar'];
+        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $this->assertEmpty($request->getQueryParams());
+    }
+
+    public function testCreateServerRequestDoesNotReadFilesSuperglobal()
+    {
+        $_FILES = [['name' => 'foobar.dat', 'type' => 'application/octet-stream', 'tmp_name' => '/tmp/php45sd3f', 'error' => UPLOAD_ERR_OK, 'size' => 4]];
+        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $this->assertEmpty($request->getUploadedFiles());
+    }
+
+    public function testCreateServerRequestDoesNotReadPostSuperglobal()
+    {
+        $_POST = ['foo' => 'bar'];
+        $request = $this->factory->createServerRequest(['CONTENT_TYPE' => 'application/x-www-form-urlencoded'], 'POST', 'http://example.org/test');
+        $this->assertEmpty($request->getParsedBody());
+    }
 }
