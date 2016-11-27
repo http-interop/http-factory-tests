@@ -2,7 +2,6 @@
 
 namespace Http\FactoryTest;
 
-use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadedFileFactoryTest extends TestCase
@@ -34,28 +33,24 @@ class UploadedFileFactoryTest extends TestCase
 
     public function testCreateUploadedFileWithString()
     {
-        $filename = tempnam(sys_get_temp_dir(), 'http-factory-test');
         $content = 'i made this!';
         $size = strlen($content);
+        $filename = $this->createTemporaryFile();
 
         file_put_contents($filename, $content);
 
         $file = $this->factory->createUploadedFile($filename);
 
         $this->assertUploadedFile($file, $content, $size);
-
-        unlink($filename);
     }
 
     public function testCreateUploadedFileWithClientFilenameAndMediaType()
     {
-        $upload = tmpfile();
         $content = 'this is your capitan speaking';
+        $upload = $this->createTemporaryResource($content);
         $error = UPLOAD_ERR_OK;
         $clientFilename = 'test.txt';
         $clientMediaType = 'text/plain';
-
-        fwrite($upload, $content);
 
         $file = $this->factory->createUploadedFile($upload, null, $error, $clientFilename, $clientMediaType);
 
@@ -64,7 +59,7 @@ class UploadedFileFactoryTest extends TestCase
 
     public function testCreateUploadedFileWithError()
     {
-        $upload = tmpfile();
+        $upload = $this->createTemporaryResource();
         $error = UPLOAD_ERR_NO_FILE;
 
         $file = $this->factory->createUploadedFile($upload, null, $error);
