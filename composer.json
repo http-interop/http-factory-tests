@@ -16,17 +16,11 @@
         }
     ],
     "require": {
-        "http-interop/http-factory": "dev-master"
+        "http-interop/http-factory": "^0.2"
     },
-    "autoload": {
+    "autoload-dev": {
         "psr-4": {
-            "Http\\FactoryTest\\": "src/"
+            "Interop\\Http\\Factory\\": "test/"
         }
-    },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/http-interop/http-factory.git"
-        }
-    ]
+    }
 }

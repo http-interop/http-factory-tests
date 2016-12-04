@@ -6,7 +6,7 @@ To use these unit tests you need to add some config to phpunit.xml.
 <phpunit>
     <testsuites>
         <testsuite name="Integration tests">
-            <directory>./vendor/http-interop/http-factory-tests/src</directory>
+            <directory>./vendor/http-interop/http-factory-tests/test</directory>
         </testsuite>
     </testsuites>
     <php>

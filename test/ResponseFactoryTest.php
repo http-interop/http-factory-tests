@@ -1,6 +1,6 @@
 <?php
 
-namespace Http\FactoryTest;
+namespace Interop\Http\Factory;
 
 use Interop\Http\Factory\ResponseFactoryInterface;
 use PHPUnit_Framework_TestCase as TestCase;

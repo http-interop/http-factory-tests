@@ -1,6 +1,6 @@
 <?php
 
-namespace Http\FactoryTest;
+namespace Interop\Http\Factory;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\ServerRequestInterface;
