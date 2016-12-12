@@ -2,10 +2,13 @@
 
 namespace Interop\Http\Factory;
 
+use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadedFileFactoryTest extends TestCase
 {
+    use StreamHelper;
+
     /** @var  UploadedFileInterface */
     private $factory;
 

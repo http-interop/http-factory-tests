@@ -1,8 +1,8 @@
 <?php
 
-namespace Http\FactoryTest;
+namespace Interop\Http\Factory;
 
-class TestCase extends \PHPUnit_Framework_TestCase
+trait StreamHelper
 {
     protected function createTemporaryFile()
     {

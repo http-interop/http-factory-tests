@@ -3,10 +3,13 @@
 namespace Interop\Http\Factory;
 
 use Interop\Http\Factory\StreamFactoryInterface;
+use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\StreamInterface;
 
 class StreamFactoryTest extends TestCase
 {
+    use StreamHelper;
+
     /** @var  StreamFactoryInterface */
     private $factory;
 
