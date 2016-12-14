@@ -3,7 +3,7 @@
 To use these unit tests you need to add some config to phpunit.xml. 
 
 ```xml
-<phpunit>
+<phpunit backupGlobals="true">
     <testsuites>
         <testsuite name="Integration tests">
             <directory>./vendor/http-interop/http-factory-tests/test</directory>
