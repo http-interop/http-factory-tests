@@ -43,6 +43,6 @@ abstract class UriFactoryTestCase extends TestCase
      */
     public function testExceptionWhenUriIsInvalid()
     {
-        $this->factory->createUri('\Invalid\Uri');
+        $this->factory->createUri(':');
     }
 }
