@@ -9,6 +9,10 @@ final class RequestFactoryTest extends RequestFactoryTestCase
      */
     protected function createRequestFactory()
     {
+        if (!defined('REQUEST_FACTORY')) {
+            $this->markTestSkipped('Request factory class name not provided');
+        }
+
         $factoryClass = REQUEST_FACTORY;
 
         return new $factoryClass();
@@ -19,6 +23,10 @@ final class RequestFactoryTest extends RequestFactoryTestCase
      */
     protected function createUri($uri)
     {
+        if (!defined('URI_FACTORY')) {
+            $this->markTestSkipped('URI factory class name not provided');
+        }
+
         $factoryClass = URI_FACTORY;
         $uriFactory = new $factoryClass();
 
