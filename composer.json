@@ -18,6 +18,9 @@
     "require": {
         "http-interop/http-factory": "^0.2"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
     "autoload-dev": {
         "psr-4": {
             "Interop\\Http\\Factory\\": "test/"
