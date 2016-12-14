@@ -126,7 +126,10 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
         $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
 
-        $this->assertEmpty($request->getServerParams());
+        $serverParams = $request->getServerParams();
+
+        $this->assertNotEquals($_SERVER, $serverParams);
+        $this->assertArrayNotHasKey('HTTP_X_FOO', $serverParams);
     }
 
     public function testCreateServerRequestDoesNotReadCookieSuperglobal()
