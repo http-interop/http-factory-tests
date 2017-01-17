@@ -120,6 +120,9 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $this->assertServerRequest($request, $method, $uri);
     }
 
+    /**
+     * @backupGlobals enabled
+     */
     public function testCreateServerRequestDoesNotReadServerSuperglobal()
     {
         $_SERVER = ['HTTP_X_FOO' => 'bar'];
