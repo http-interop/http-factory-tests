@@ -58,7 +58,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
             $data[] = [
                 [
                     'REQUEST_METHOD' => $methodData[0],
-                    'REQUEST_URI' => '/test',
+                    'REQUEST_URI' => '/test?foo=1&bar=true',
                     'QUERY_STRING' => 'foo=1&bar=true',
                     'HTTP_HOST' => 'example.org',
                 ]
@@ -74,7 +74,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     public function testCreateServerRequest($server)
     {
         $method = $server['REQUEST_METHOD'];
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}";
 
         $request = $this->factory->createServerRequest($server);
 
@@ -87,7 +87,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     public function testCreateServerRequestWithOverridenMethod($server)
     {
         $method = 'OPTIONS';
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}";
 
         $request = $this->factory->createServerRequest($server, $method);
 
@@ -113,7 +113,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     public function testCreateServerRequestWithUriObject($server)
     {
         $method = $server['REQUEST_METHOD'];
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}";
 
         $request = $this->factory->createServerRequest([], $method, $this->createUri($uri));
 
