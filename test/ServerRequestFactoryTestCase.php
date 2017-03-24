@@ -76,7 +76,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $method = $server['REQUEST_METHOD'];
         $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
 
-        $request = $this->factory->createServerRequest($server);
+        $request = $this->factory->createServerRequest($method, $uri);
 
         $this->assertServerRequest($request, $method, $uri);
     }
@@ -84,25 +84,12 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     /**
      * @dataProvider dataServer
      */
-    public function testCreateServerRequestWithOverridenMethod($server)
-    {
-        $method = 'OPTIONS';
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
-
-        $request = $this->factory->createServerRequest($server, $method);
-
-        $this->assertServerRequest($request, $method, $uri);
-    }
-
-    /**
-     * @dataProvider dataServer
-     */
-    public function testCreateServerRequestWithOverridenUri($server)
+    public function testCreateServerRequestFromArray(array $server)
     {
         $method = $server['REQUEST_METHOD'];
-        $uri = "https://example.com/foobar?bar=2&foo=false";
+        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
 
-        $request = $this->factory->createServerRequest($server, null, $uri);
+        $request = $this->factory->createServerRequestFromArray($server);
 
         $this->assertServerRequest($request, $method, $uri);
     }
@@ -115,7 +102,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $method = $server['REQUEST_METHOD'];
         $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
 
-        $request = $this->factory->createServerRequest([], $method, $this->createUri($uri));
+        $request = $this->factory->createServerRequest($method, $this->createUri($uri));
 
         $this->assertServerRequest($request, $method, $uri);
     }
@@ -127,7 +114,14 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     {
         $_SERVER = ['HTTP_X_FOO' => 'bar'];
 
-        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $server = [
+            'REQUEST_METHOD' => 'PUT',
+            'REQUEST_URI' => '/test',
+            'QUERY_STRING' => 'super=0',
+            'HTTP_HOST' => 'example.org',
+        ];
+
+        $request = $this->factory->createServerRequestFromArray($server);
 
         $serverParams = $request->getServerParams();
 
@@ -139,7 +133,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     {
         $_COOKIE = ['foo' => 'bar'];
 
-        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
         $this->assertEmpty($request->getCookieParams());
     }
@@ -148,7 +142,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     {
         $_GET = ['foo' => 'bar'];
 
-        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
         $this->assertEmpty($request->getQueryParams());
     }
@@ -157,7 +151,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     {
         $_FILES = [['name' => 'foobar.dat', 'type' => 'application/octet-stream', 'tmp_name' => '/tmp/php45sd3f', 'error' => UPLOAD_ERR_OK, 'size' => 4]];
 
-        $request = $this->factory->createServerRequest([], 'POST', 'http://example.org/test');
+        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
         $this->assertEmpty($request->getUploadedFiles());
     }
@@ -166,7 +160,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
     {
         $_POST = ['foo' => 'bar'];
 
-        $request = $this->factory->createServerRequest(['CONTENT_TYPE' => 'application/x-www-form-urlencoded'], 'POST', 'http://example.org/test');
+        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
         $this->assertEmpty($request->getParsedBody());
     }

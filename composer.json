@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "http-interop/http-factory": "^0.2"
+        "http-interop/http-factory": "^0.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
