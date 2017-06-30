@@ -3,7 +3,7 @@
 namespace Interop\Http\Factory;
 
 use Interop\Http\Factory\ServerRequestFactoryInterface;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
