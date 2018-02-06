@@ -45,11 +45,8 @@ abstract class UploadedFileFactoryTestCase extends TestCase
     {
         $content = 'i made this!';
         $size = strlen($content);
-        $filename = $this->createTemporaryFile();
 
-        file_put_contents($filename, $content);
-
-        $file = $this->factory->createUploadedFile($filename);
+        $file = $this->factory->createUploadedFile($content);
 
         $this->assertUploadedFile($file, $content, $size);
     }
