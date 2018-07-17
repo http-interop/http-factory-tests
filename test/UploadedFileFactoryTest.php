@@ -17,4 +17,16 @@ final class UploadedFileFactoryTest extends UploadedFileFactoryTestCase
 
         return new $factoryClass();
     }
+
+    protected function createStream($content)
+    {
+        if (!defined('STREAM_FACTORY')) {
+            $this->markTestSkipped('STREAM factory class name not provided');
+        }
+
+        $factoryClass = STREAM_FACTORY;
+        $uriFactory = new $factoryClass();
+
+        return $uriFactory->createStream($content);
+    }
 }

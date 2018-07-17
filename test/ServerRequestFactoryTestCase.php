@@ -89,7 +89,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $method = $server['REQUEST_METHOD'];
         $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
 
-        $request = $this->factory->createServerRequestFromArray($server);
+        $request = $this->factory->createServerRequest($method, $uri, $server);
 
         $this->assertServerRequest($request, $method, $uri);
     }
@@ -121,7 +121,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
             'HTTP_HOST' => 'example.org',
         ];
 
-        $request = $this->factory->createServerRequestFromArray($server);
+        $request = $this->factory->createServerRequest('PUT', '/test', $server);
 
         $serverParams = $request->getServerParams();
 
