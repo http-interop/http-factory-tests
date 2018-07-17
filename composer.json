@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "http-interop/http-factory": "^0.3 || 1.0.x-dev",
+        "http-interop/http-factory": "^0.4 || 1.0.x-dev",
         "phpunit/phpunit": "^5.7 || ^6.0 || ^7.0"
     },
     "autoload": {
