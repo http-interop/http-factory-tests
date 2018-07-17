@@ -4,12 +4,11 @@ namespace Interop\Http\Factory;
 
 use Interop\Http\Factory\UploadedFileFactoryInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 abstract class UploadedFileFactoryTestCase extends TestCase
 {
-    use StreamHelper;
-
     /**
      * @var UploadedFileFactoryInterface
      */
@@ -19,6 +18,11 @@ abstract class UploadedFileFactoryTestCase extends TestCase
      * @return UploadedFileFactoryInterface
      */
     abstract protected function createUploadedFileFactory();
+
+    /**
+     * @return StreamInterface
+     */
+    abstract protected function createStream($content);
 
     public function setUp()
     {
@@ -44,7 +48,7 @@ abstract class UploadedFileFactoryTestCase extends TestCase
     public function testCreateUploadedFileWithClientFilenameAndMediaType()
     {
         $content = 'this is your capitan speaking';
-        $upload = $this->createTemporaryResource($content);
+        $upload = $this->createStream($content);
         $error = UPLOAD_ERR_OK;
         $clientFilename = 'test.txt';
         $clientMediaType = 'text/plain';
@@ -56,7 +60,7 @@ abstract class UploadedFileFactoryTestCase extends TestCase
 
     public function testCreateUploadedFileWithError()
     {
-        $upload = $this->createTemporaryResource();
+        $upload = $this->createStream('foobar');
         $error = UPLOAD_ERR_NO_FILE;
 
         $file = $this->factory->createUploadedFile($upload, null, $error);
