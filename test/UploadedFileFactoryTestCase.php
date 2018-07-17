@@ -41,16 +41,6 @@ abstract class UploadedFileFactoryTestCase extends TestCase
         $this->assertSame($clientMediaType, $file->getClientMediaType());
     }
 
-    public function testCreateUploadedFileWithString()
-    {
-        $content = 'i made this!';
-        $size = strlen($content);
-
-        $file = $this->factory->createUploadedFile($content);
-
-        $this->assertUploadedFile($file, $content, $size);
-    }
-
     public function testCreateUploadedFileWithClientFilenameAndMediaType()
     {
         $content = 'this is your capitan speaking';
