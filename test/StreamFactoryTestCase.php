@@ -2,8 +2,8 @@
 
 namespace Interop\Http\Factory;
 
-use Interop\Http\Factory\StreamFactoryInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 
 abstract class StreamFactoryTestCase extends TestCase

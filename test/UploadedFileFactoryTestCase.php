@@ -2,9 +2,9 @@
 
 namespace Interop\Http\Factory;
 
-use Interop\Http\Factory\UploadedFileFactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 abstract class UploadedFileFactoryTestCase extends TestCase
