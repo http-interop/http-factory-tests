@@ -2,8 +2,8 @@
 
 namespace Interop\Http\Factory;
 
-use Interop\Http\Factory\UriFactoryInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
 abstract class UriFactoryTestCase extends TestCase
