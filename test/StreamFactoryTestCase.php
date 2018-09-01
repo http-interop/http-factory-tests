@@ -2,6 +2,8 @@
 
 namespace Interop\Http\Factory;
 
+use InvalidArgumentException;
+use RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
@@ -31,9 +33,34 @@ abstract class StreamFactoryTestCase extends TestCase
         $this->assertSame($content, (string) $stream);
     }
 
-    public function testCreateStream()
+    public function testCreateStreamWithoutArgument()
+    {
+        $stream = $this->factory->createStream();
+
+        $this->assertStream($stream, '');
+    }
+
+    public function testCreateStreamWithEmptyString()
+    {
+        $string = '';
+
+        $stream = $this->factory->createStream($string);
+
+        $this->assertStream($stream, $string);
+    }
+
+    public function testCreateStreamWithASCIIString()
     {
         $string = 'would you like some crumpets?';
+
+        $stream = $this->factory->createStream($string);
+
+        $this->assertStream($stream, $string);
+    }
+
+    public function testCreateStreamWithMultiByteMultiLineString()
+    {
+        $string = "would you\r\nlike some\n\u{1F950}?";
 
         $stream = $this->factory->createStream($string);
 
@@ -50,6 +77,58 @@ abstract class StreamFactoryTestCase extends TestCase
         $stream = $this->factory->createStreamFromFile($filename);
 
         $this->assertStream($stream, $string);
+    }
+
+    public function testCreateStreamFromNonExistingFile()
+    {
+        $filename = $this->createTemporaryFile();
+        unlink($filename);
+
+        $this->expectException(RuntimeException::class);
+        $stream = $this->factory->createStreamFromFile($filename);
+    }
+
+    public function testCreateStreamFromInvalidFileName()
+    {
+        $this->expectException(RuntimeException::class);
+        $stream = $this->factory->createStreamFromFile('');
+    }
+
+    public function testCreateStreamFromFileIsReadOnlyByDefault()
+    {
+        $string = 'would you like some crumpets?';
+        $filename = $this->createTemporaryFile();
+
+        $stream = $this->factory->createStreamFromFile($filename);
+
+        $this->expectException(RuntimeException::class);
+        $stream->write($string);
+    }
+
+    public function testCreateStreamFromFileWithWriteOnlyMode()
+    {
+        $filename = $this->createTemporaryFile();
+
+        $stream = $this->factory->createStreamFromFile($filename, 'w');
+
+        $this->expectException(RuntimeException::class);
+        $stream->read(1);
+    }
+
+    public function testCreateStreamFromFileWithNoMode()
+    {
+        $filename = $this->createTemporaryFile();
+
+        $this->expectException(InvalidArgumentException::class);
+        $stream = $this->factory->createStreamFromFile($filename, '');
+    }
+
+    public function testCreateStreamFromFileWithInvalidMode()
+    {
+        $filename = $this->createTemporaryFile();
+
+        $this->expectException(InvalidArgumentException::class);
+        $stream = $this->factory->createStreamFromFile($filename, "\u{2620}");
     }
 
     public function testCreateStreamFromResource()
