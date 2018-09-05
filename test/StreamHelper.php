@@ -4,9 +4,11 @@ namespace Interop\Http\Factory;
 
 trait StreamHelper
 {
+    protected static $tempFiles = [];
+
     protected function createTemporaryFile()
     {
-        return tempnam(sys_get_temp_dir(), uniqid());
+        return static::$tempFiles[] = tempnam(sys_get_temp_dir(), 'http_factory_tests_');
     }
 
     protected function createTemporaryResource($content = null)
@@ -20,5 +22,12 @@ trait StreamHelper
         }
 
         return $resource;
+    }
+
+    public static function tearDownAfterClass()
+    {
+        foreach (static::$tempFiles as $tempFile) {
+            @unlink($tempFile);
+        }
     }
 }
