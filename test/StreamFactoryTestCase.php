@@ -131,6 +131,22 @@ abstract class StreamFactoryTestCase extends TestCase
         $stream = $this->factory->createStreamFromFile($filename, "\u{2620}");
     }
 
+    public function testCreateStreamFromFileCursorPosition()
+    {
+        $string = 'would you like some crumpets?';
+        $filename = $this->createTemporaryFile();
+
+        file_put_contents($filename, $string);
+
+        $resource = fopen($filename, 'r');
+        $fopenTell = ftell($resource);
+        fclose($resource);
+
+        $stream = $this->factory->createStreamFromFile($filename);
+
+        $this->assertSame($fopenTell, $stream->tell());
+    }
+
     public function testCreateStreamFromResource()
     {
         $string = 'would you like some crumpets?';
