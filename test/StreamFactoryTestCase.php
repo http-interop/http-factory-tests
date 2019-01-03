@@ -67,6 +67,17 @@ abstract class StreamFactoryTestCase extends TestCase
         $this->assertStream($stream, $string);
     }
 
+    public function testCreateStreamCursorPosition()
+    {
+        $this->markTestIncomplete('This behaviour has not been specified by PHP-FIG yet.');
+
+        $string = 'would you like some crumpets?';
+
+        $stream = $this->factory->createStream($string);
+
+        $this->assertSame(strlen($string), $stream->tell());
+    }
+
     public function testCreateStreamFromFile()
     {
         $string = 'would you like some crumpets?';
