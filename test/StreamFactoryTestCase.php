@@ -156,4 +156,24 @@ abstract class StreamFactoryTestCase extends TestCase
 
         $this->assertStream($stream, $string);
     }
+
+    public function testCreateStreamFromResourceCursorPosition()
+    {
+        $string = 'would you like some crumpets?';
+
+        $resource1 = $this->createTemporaryResource($string);
+        fseek($resource1, 0, SEEK_SET);
+        $stream1 = $this->factory->createStreamFromResource($resource1);
+        $this->assertSame(0, $stream1->tell());
+
+        $resource2 = $this->createTemporaryResource($string);
+        fseek($resource2, 0, SEEK_END);
+        $stream2 = $this->factory->createStreamFromResource($resource2);
+        $this->assertSame(strlen($string), $stream2->tell());
+
+        $resource3 = $this->createTemporaryResource($string);
+        fseek($resource3, 15, SEEK_SET);
+        $stream3 = $this->factory->createStreamFromResource($resource3);
+        $this->assertSame(15, $stream3->tell());
+    }
 }
