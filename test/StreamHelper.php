@@ -24,7 +24,7 @@ trait StreamHelper
         return $resource;
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass():void
     {
         foreach (static::$tempFiles as $tempFile) {
             @unlink($tempFile);
