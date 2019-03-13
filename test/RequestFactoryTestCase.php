@@ -26,7 +26,7 @@ abstract class RequestFactoryTestCase extends TestCase
      */
     abstract protected function createUri($uri);
 
-    public function setUp()
+    public function setUp():void
     {
         $this->factory = $this->createRequestFactory();
     }

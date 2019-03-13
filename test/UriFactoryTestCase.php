@@ -18,7 +18,7 @@ abstract class UriFactoryTestCase extends TestCase
      */
     abstract protected function createUriFactory();
 
-    public function setUp()
+    public function setUp():void
     {
         $this->factory = $this->createUriFactory();
     }
@@ -38,11 +38,9 @@ abstract class UriFactoryTestCase extends TestCase
         $this->assertUri($uri, $uriString);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testExceptionWhenUriIsInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
         $this->factory->createUri(':');
     }
 }

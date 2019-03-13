@@ -18,7 +18,7 @@ abstract class ResponseFactoryTestCase extends TestCase
      */
     abstract protected function createResponseFactory();
 
-    public function setUp()
+    public function setUp():void
     {
         $this->factory = $this->createResponseFactory();
     }
