@@ -24,7 +24,7 @@ abstract class UploadedFileFactoryTestCase extends TestCase
      */
     abstract protected function createStream($content);
 
-    public function setUp():void
+    public function setUp(): void
     {
         $this->factory = $this->createUploadedFileFactory();
     }

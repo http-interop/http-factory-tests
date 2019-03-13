@@ -18,7 +18,7 @@ abstract class UriFactoryTestCase extends TestCase
      */
     abstract protected function createUriFactory();
 
-    public function setUp():void
+    public function setUp(): void
     {
         $this->factory = $this->createUriFactory();
     }
