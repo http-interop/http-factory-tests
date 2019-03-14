@@ -22,7 +22,7 @@ abstract class StreamFactoryTestCase extends TestCase
      */
     abstract protected function createStreamFactory();
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->factory = $this->createStreamFactory();
     }
