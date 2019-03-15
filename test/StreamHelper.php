@@ -27,7 +27,7 @@ trait StreamHelper
     public static function tearDownAfterClass(): void
     {
         foreach (static::$tempFiles as $tempFile) {
-            if(file_exists($tempFile)){
+            if (is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
