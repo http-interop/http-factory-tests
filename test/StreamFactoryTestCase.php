@@ -2,6 +2,7 @@
 
 namespace Interop\Http\Factory;
 
+use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 use PHPUnit\Framework\TestCase;
