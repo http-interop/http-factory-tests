@@ -119,7 +119,7 @@ abstract class StreamFactoryTestCase extends TestCase
     {
         $filename = $this->createTemporaryFile();
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Exception::class);
         $stream = $this->factory->createStreamFromFile($filename, '');
     }
 
@@ -127,7 +127,7 @@ abstract class StreamFactoryTestCase extends TestCase
     {
         $filename = $this->createTemporaryFile();
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Exception::class);
         $stream = $this->factory->createStreamFromFile($filename, "\u{2620}");
     }
 
