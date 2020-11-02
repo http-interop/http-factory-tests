@@ -8,6 +8,7 @@ use RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use ValueError;
 
 abstract class StreamFactoryTestCase extends TestCase
 {
@@ -91,7 +92,7 @@ abstract class StreamFactoryTestCase extends TestCase
 
     public function testCreateStreamFromInvalidFileName()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(PHP_VERSION_ID >= 80000 ? ValueError::class : RuntimeException::class);
         $stream = $this->factory->createStreamFromFile('');
     }
 
