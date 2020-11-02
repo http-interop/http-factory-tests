@@ -92,12 +92,7 @@ abstract class StreamFactoryTestCase extends TestCase
 
     public function testCreateStreamFromInvalidFileName()
     {
-        if (PHP_VERSION_ID >= 80000) {
-             $this->expectException(ValueError::class);
-        }
-        else {
-             $this->expectException(RuntimeException::class);
-        }
+        $this->expectException(PHP_VERSION_ID >= 80000 ? ValueError::class : RuntimeException::class);
         $stream = $this->factory->createStreamFromFile('');
     }
 
