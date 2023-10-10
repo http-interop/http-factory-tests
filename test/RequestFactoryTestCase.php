@@ -38,7 +38,7 @@ abstract class RequestFactoryTestCase extends TestCase
         $this->assertSame($uri, (string) $request->getUri());
     }
 
-    public function dataMethods()
+    public static function dataMethods()
     {
         return [
             ['GET'],

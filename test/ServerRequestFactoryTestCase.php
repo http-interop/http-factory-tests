@@ -38,7 +38,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $this->assertSame($uri, (string) $request->getUri());
     }
 
-    public function dataMethods()
+    public static function dataMethods()
     {
         return [
             ['GET'],
@@ -50,11 +50,11 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         ];
     }
 
-    public function dataServer()
+    public static function dataServer()
     {
         $data = [];
 
-        foreach ($this->dataMethods() as $methodData) {
+        foreach (static::dataMethods() as $methodData) {
             $data[] = [
                 [
                     'REQUEST_METHOD' => $methodData[0],
