@@ -29,7 +29,7 @@ abstract class ResponseFactoryTestCase extends TestCase
         $this->assertSame($code, $response->getStatusCode());
     }
 
-    public function dataCodes()
+    public static function dataCodes()
     {
         return [
             [200],
