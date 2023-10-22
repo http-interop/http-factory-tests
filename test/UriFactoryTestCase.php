@@ -2,6 +2,7 @@
 
 namespace Interop\Http\Factory;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
@@ -25,8 +26,8 @@ abstract class UriFactoryTestCase extends TestCase
 
     protected function assertUri($uri, $uriString)
     {
-        $this->assertInstanceOf(UriInterface::class, $uri);
-        $this->assertSame($uriString, (string) $uri);
+        static::assertInstanceOf(UriInterface::class, $uri);
+        static::assertSame($uriString, (string) $uri);
     }
 
     public function testCreateUri()
@@ -40,7 +41,7 @@ abstract class UriFactoryTestCase extends TestCase
 
     public function testExceptionWhenUriIsInvalid()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->factory->createUri(':');
     }
 }

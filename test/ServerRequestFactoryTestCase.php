@@ -1,11 +1,17 @@
 <?php
+/**
+ * @noinspection PhpArrayWriteIsNotUsedInspection
+ */
 
 namespace Interop\Http\Factory;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use const UPLOAD_ERR_OK;
 
 abstract class ServerRequestFactoryTestCase extends TestCase
 {
@@ -33,9 +39,9 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
     protected function assertServerRequest($request, $method, $uri)
     {
-        $this->assertInstanceOf(ServerRequestInterface::class, $request);
-        $this->assertSame($method, $request->getMethod());
-        $this->assertSame($uri, (string) $request->getUri());
+        static::assertInstanceOf(ServerRequestInterface::class, $request);
+        static::assertSame($method, $request->getMethod());
+        static::assertSame($uri, (string) $request->getUri());
     }
 
     public static function dataMethods()
@@ -55,7 +61,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $data = [];
 
         foreach (static::dataMethods() as $methodData) {
-            $data[] = [
+            $data[$methodData[0]] = [
                 [
                     'REQUEST_METHOD' => $methodData[0],
                     'REQUEST_URI' => '/test',
@@ -68,9 +74,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         return $data;
     }
 
-    /**
-     * @dataProvider dataServer
-     */
+    #[DataProvider('dataServer')]
     public function testCreateServerRequest($server)
     {
         $method = $server['REQUEST_METHOD'];
@@ -81,9 +85,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $this->assertServerRequest($request, $method, $uri);
     }
 
-    /**
-     * @dataProvider dataServer
-     */
+    #[DataProvider('dataServer')]
     public function testCreateServerRequestFromArray(array $server)
     {
         $method = $server['REQUEST_METHOD'];
@@ -94,9 +96,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $this->assertServerRequest($request, $method, $uri);
     }
 
-    /**
-     * @dataProvider dataServer
-     */
+    #[DataProvider('dataServer')]
     public function testCreateServerRequestWithUriObject($server)
     {
         $method = $server['REQUEST_METHOD'];
@@ -107,9 +107,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
         $this->assertServerRequest($request, $method, $uri);
     }
 
-    /**
-     * @backupGlobals enabled
-     */
+    #[BackupGlobals(true)]
     public function testCreateServerRequestDoesNotReadServerSuperglobal()
     {
         $_SERVER = ['HTTP_X_FOO' => 'bar'];
@@ -125,8 +123,8 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
         $serverParams = $request->getServerParams();
 
-        $this->assertNotEquals($_SERVER, $serverParams);
-        $this->assertArrayNotHasKey('HTTP_X_FOO', $serverParams);
+        static::assertNotEquals($_SERVER, $serverParams);
+        static::assertArrayNotHasKey('HTTP_X_FOO', $serverParams);
     }
 
     public function testCreateServerRequestDoesNotReadCookieSuperglobal()
@@ -135,7 +133,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
         $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
-        $this->assertEmpty($request->getCookieParams());
+        static::assertEmpty($request->getCookieParams());
     }
 
     public function testCreateServerRequestDoesNotReadGetSuperglobal()
@@ -144,7 +142,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
         $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
-        $this->assertEmpty($request->getQueryParams());
+        static::assertEmpty($request->getQueryParams());
     }
 
     public function testCreateServerRequestDoesNotReadFilesSuperglobal()
@@ -153,7 +151,7 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
         $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
-        $this->assertEmpty($request->getUploadedFiles());
+        static::assertEmpty($request->getUploadedFiles());
     }
 
     public function testCreateServerRequestDoesNotReadPostSuperglobal()
@@ -162,6 +160,6 @@ abstract class ServerRequestFactoryTestCase extends TestCase
 
         $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
 
-        $this->assertEmpty($request->getParsedBody());
+        static::assertEmpty($request->getParsedBody());
     }
 }

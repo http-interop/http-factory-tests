@@ -3,11 +3,19 @@
 namespace Interop\Http\Factory;
 
 use Exception;
-use InvalidArgumentException;
 use RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use function fclose;
+use function file_put_contents;
+use function fopen;
+use function fseek;
+use function ftell;
+use function strlen;
+use function unlink;
+use const SEEK_END;
+use const SEEK_SET;
 
 abstract class StreamFactoryTestCase extends TestCase
 {
@@ -30,8 +38,8 @@ abstract class StreamFactoryTestCase extends TestCase
 
     protected function assertStream($stream, $content)
     {
-        $this->assertInstanceOf(StreamInterface::class, $stream);
-        $this->assertSame($content, (string) $stream);
+        static::assertInstanceOf(StreamInterface::class, $stream);
+        static::assertSame($content, (string) $stream);
     }
 
     public function testCreateStreamWithoutArgument()
@@ -68,6 +76,9 @@ abstract class StreamFactoryTestCase extends TestCase
         $this->assertStream($stream, $string);
     }
 
+    /**
+     * @noinspection PhpUnreachableStatementInspection
+     */
     public function testCreateStreamCursorPosition()
     {
         $this->markTestIncomplete('This behaviour has not been specified by PHP-FIG yet.');
@@ -76,7 +87,7 @@ abstract class StreamFactoryTestCase extends TestCase
 
         $stream = $this->factory->createStream($string);
 
-        $this->assertSame(strlen($string), $stream->tell());
+        static::assertSame(strlen($string), $stream->tell());
     }
 
     public function testCreateStreamFromFile()
@@ -97,13 +108,13 @@ abstract class StreamFactoryTestCase extends TestCase
         unlink($filename);
 
         $this->expectException(RuntimeException::class);
-        $stream = $this->factory->createStreamFromFile($filename);
+        $this->factory->createStreamFromFile($filename);
     }
 
     public function testCreateStreamFromInvalidFileName()
     {
         $this->expectException(RuntimeException::class);
-        $stream = $this->factory->createStreamFromFile('');
+        $this->factory->createStreamFromFile('');
     }
 
     public function testCreateStreamFromFileIsReadOnlyByDefault()
@@ -132,7 +143,7 @@ abstract class StreamFactoryTestCase extends TestCase
         $filename = $this->createTemporaryFile();
 
         $this->expectException(Exception::class);
-        $stream = $this->factory->createStreamFromFile($filename, '');
+        $this->factory->createStreamFromFile($filename, '');
     }
 
     public function testCreateStreamFromFileWithInvalidMode()
@@ -140,7 +151,7 @@ abstract class StreamFactoryTestCase extends TestCase
         $filename = $this->createTemporaryFile();
 
         $this->expectException(Exception::class);
-        $stream = $this->factory->createStreamFromFile($filename, "\u{2620}");
+        $this->factory->createStreamFromFile($filename, "\u{2620}");
     }
 
     public function testCreateStreamFromFileCursorPosition()
@@ -156,7 +167,7 @@ abstract class StreamFactoryTestCase extends TestCase
 
         $stream = $this->factory->createStreamFromFile($filename);
 
-        $this->assertSame($fopenTell, $stream->tell());
+        static::assertSame($fopenTell, $stream->tell());
     }
 
     public function testCreateStreamFromResource()
@@ -176,16 +187,16 @@ abstract class StreamFactoryTestCase extends TestCase
         $resource1 = $this->createTemporaryResource($string);
         fseek($resource1, 0, SEEK_SET);
         $stream1 = $this->factory->createStreamFromResource($resource1);
-        $this->assertSame(0, $stream1->tell());
+        static::assertSame(0, $stream1->tell());
 
         $resource2 = $this->createTemporaryResource($string);
         fseek($resource2, 0, SEEK_END);
         $stream2 = $this->factory->createStreamFromResource($resource2);
-        $this->assertSame(strlen($string), $stream2->tell());
+        static::assertSame(strlen($string), $stream2->tell());
 
         $resource3 = $this->createTemporaryResource($string);
         fseek($resource3, 15, SEEK_SET);
         $stream3 = $this->factory->createStreamFromResource($resource3);
-        $this->assertSame(15, $stream3->tell());
+        static::assertSame(15, $stream3->tell());
     }
 }

@@ -1,6 +1,12 @@
 <?php
+/**
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
+
+use function class_exists;
+use function defined;
 
 final class UploadedFileFactoryTest extends UploadedFileFactoryTestCase
 {
@@ -9,24 +15,19 @@ final class UploadedFileFactoryTest extends UploadedFileFactoryTestCase
      */
     protected function createUploadedFileFactory()
     {
-        if (!defined('UPLOADED_FILE_FACTORY')) {
-            $this->markTestSkipped('Uploaded File factory class name not provided');
+        if (!defined('UPLOADED_FILE_FACTORY') || !class_exists(UPLOADED_FILE_FACTORY)) {
+            self::markTestSkipped('Uploaded File factory class name not provided');
         }
 
-        $factoryClass = UPLOADED_FILE_FACTORY;
-
-        return new $factoryClass();
+        return new (UPLOADED_FILE_FACTORY);
     }
 
     protected function createStream($content)
     {
         if (!defined('STREAM_FACTORY')) {
-            $this->markTestSkipped('STREAM factory class name not provided');
+            self::markTestSkipped('STREAM factory class name not provided');
         }
 
-        $factoryClass = STREAM_FACTORY;
-        $uriFactory = new $factoryClass();
-
-        return $uriFactory->createStream($content);
+        return (new (STREAM_FACTORY))->createStream($content);
     }
 }

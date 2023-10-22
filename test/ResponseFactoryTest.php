@@ -1,6 +1,12 @@
 <?php
+/**
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
+
+use function class_exists;
+use function defined;
 
 final class ResponseFactoryTest extends ResponseFactoryTestCase
 {
@@ -9,12 +15,10 @@ final class ResponseFactoryTest extends ResponseFactoryTestCase
      */
     protected function createResponseFactory()
     {
-        if (!defined('RESPONSE_FACTORY')) {
-            $this->markTestSkipped('Response factory class name not provided');
+        if (!defined('RESPONSE_FACTORY') || !class_exists(RESPONSE_FACTORY)) {
+            self::markTestSkipped('Response factory class name not provided');
         }
 
-        $factoryClass = RESPONSE_FACTORY;
-
-        return new $factoryClass();
+        return new (RESPONSE_FACTORY);
     }
 }

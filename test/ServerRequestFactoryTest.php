@@ -1,6 +1,12 @@
 <?php
+/**
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
+
+use function class_exists;
+use function defined;
 
 final class ServerRequestFactoryTest extends ServerRequestFactoryTestCase
 {
@@ -9,13 +15,11 @@ final class ServerRequestFactoryTest extends ServerRequestFactoryTestCase
      */
     protected function createServerRequestFactory()
     {
-        if (!defined('SERVER_REQUEST_FACTORY')) {
-            $this->markTestSkipped('Server Request factory class name not provided');
+        if (!defined('SERVER_REQUEST_FACTORY') || !class_exists(SERVER_REQUEST_FACTORY)) {
+            self::markTestSkipped('Server Request factory class name not provided');
         }
 
-        $factoryClass = SERVER_REQUEST_FACTORY;
-
-        return new $factoryClass();
+        return new (SERVER_REQUEST_FACTORY);
     }
 
     /**
@@ -24,12 +28,9 @@ final class ServerRequestFactoryTest extends ServerRequestFactoryTestCase
     protected function createUri($uri)
     {
         if (!defined('URI_FACTORY')) {
-            $this->markTestSkipped('URI factory class name not provided');
+            self::markTestSkipped('URI factory class name not provided');
         }
 
-        $factoryClass = URI_FACTORY;
-        $uriFactory = new $factoryClass();
-
-        return $uriFactory->createUri($uri);
+        return (new (URI_FACTORY))->createUri($uri);
     }
 }
