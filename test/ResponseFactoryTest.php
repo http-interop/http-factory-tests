@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use function class_exists;
 use function defined;
 
-class ResponseFactoryTestCase extends TestCase
+class ResponseFactoryTest extends TestCase
 {
 
     protected ResponseFactoryInterface $responseFactory;

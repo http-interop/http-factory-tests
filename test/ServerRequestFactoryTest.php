@@ -19,7 +19,7 @@ use function class_exists;
 use function defined;
 use const UPLOAD_ERR_OK;
 
-class ServerRequestFactoryTestCase extends TestCase
+class ServerRequestFactoryTest extends TestCase
 {
 
     protected ServerRequestFactoryInterface $serverRequestFactory;

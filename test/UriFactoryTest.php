@@ -15,7 +15,7 @@ use Psr\Http\Message\UriFactoryInterface;
 use function class_exists;
 use function defined;
 
-class UriFactoryTestCase extends TestCase
+class UriFactoryTest extends TestCase
 {
 
     protected UriFactoryInterface $uriFactory;

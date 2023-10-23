@@ -30,7 +30,7 @@ use function unlink;
 use const SEEK_END;
 use const SEEK_SET;
 
-class StreamFactoryTestCase extends TestCase
+class StreamFactoryTest extends TestCase
 {
 
     protected StreamFactoryInterface $streamFactory;

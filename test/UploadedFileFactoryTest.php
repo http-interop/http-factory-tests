@@ -18,7 +18,7 @@ use function strlen;
 use const UPLOAD_ERR_NO_FILE;
 use const UPLOAD_ERR_OK;
 
-class UploadedFileFactoryTestCase extends TestCase
+class UploadedFileFactoryTest extends TestCase
 {
 
     protected UploadedFileFactoryInterface $uploadedFileFactory;
