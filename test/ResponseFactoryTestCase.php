@@ -1,36 +1,40 @@
 <?php
+/**
+ * @author       http-factory-tests Contributors
+ * @license      MIT
+ * @link         https://github.com/http-interop/http-factory-tests
+ *
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\ResponseInterface;
+use function class_exists;
+use function defined;
 
-abstract class ResponseFactoryTestCase extends TestCase
+class ResponseFactoryTestCase extends TestCase
 {
-    /**
-     * @var ResponseFactoryInterface
-     */
-    protected $factory;
 
-    /**
-     * @return ResponseFactoryInterface
-     */
-    abstract protected function createResponseFactory();
+    protected ResponseFactoryInterface $responseFactory;
 
     public function setUp(): void
     {
-        $this->factory = $this->createResponseFactory();
+        $this->responseFactory = $this->createResponseFactory();
     }
 
-    protected function assertResponse($response, $code)
+    protected function createResponseFactory(): ResponseFactoryInterface
     {
-        static::assertInstanceOf(ResponseInterface::class, $response);
-        static::assertSame($code, $response->getStatusCode());
+        if(!defined('RESPONSE_FACTORY') || !class_exists(RESPONSE_FACTORY)){
+            static::markTestSkipped('RESPONSE_FACTORY class name not provided');
+        }
+
+        return new (RESPONSE_FACTORY);
     }
 
-    public static function dataCodes()
+    public static function dataCodes(): array
     {
         return [
             'HTTP/200' => [200],
@@ -41,10 +45,11 @@ abstract class ResponseFactoryTestCase extends TestCase
     }
 
     #[DataProvider('dataCodes')]
-    public function testCreateResponse($code)
+    public function testCreateResponse(int $code): void
     {
-        $response = $this->factory->createResponse($code);
+        $response = $this->responseFactory->createResponse($code);
 
-        $this->assertResponse($response, $code);
+        static::assertSame($code, $response->getStatusCode());
     }
+
 }

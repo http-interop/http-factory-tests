@@ -1,202 +1,254 @@
 <?php
+/**
+ * @author       http-factory-tests Contributors
+ * @license      MIT
+ * @link         https://github.com/http-interop/http-factory-tests
+ *
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
 
 use Exception;
-use RuntimeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Message\StreamInterface;
+use RuntimeException;
+use function class_exists;
+use function defined;
 use function fclose;
+use function file_exists;
 use function file_put_contents;
 use function fopen;
 use function fseek;
 use function ftell;
-use function strlen;
+use function fwrite;
+use function rewind;
+use function sys_get_temp_dir;
+use function tempnam;
 use function unlink;
 use const SEEK_END;
 use const SEEK_SET;
 
-abstract class StreamFactoryTestCase extends TestCase
+class StreamFactoryTestCase extends TestCase
 {
-    use StreamHelper;
 
-    /**
-     * @var StreamFactoryInterface
-     */
-    protected $factory;
-
-    /**
-     * @return StreamFactoryInterface
-     */
-    abstract protected function createStreamFactory();
+    protected StreamFactoryInterface $streamFactory;
+    protected static array           $tempFiles = [];
 
     public function setUp(): void
     {
-        $this->factory = $this->createStreamFactory();
+        $this->streamFactory = $this->createStreamFactory();
     }
 
-    protected function assertStream($stream, $content)
+    protected function createStreamFactory(): StreamFactoryInterface
     {
-        static::assertInstanceOf(StreamInterface::class, $stream);
-        static::assertSame($content, (string) $stream);
+        if (!defined('STREAM_FACTORY') || !class_exists(STREAM_FACTORY)) {
+            static::markTestSkipped('STREAM_FACTORY class name not provided');
+        }
+
+        return new (STREAM_FACTORY);
     }
 
-    public function testCreateStreamWithoutArgument()
+    public static function tearDownAfterClass(): void
     {
-        $stream = $this->factory->createStream();
-
-        $this->assertStream($stream, '');
+        foreach(static::$tempFiles as $tempFile){
+            if(file_exists($tempFile)){
+                unlink($tempFile);
+            }
+        }
     }
 
-    public function testCreateStreamWithEmptyString()
+    protected function createTemporaryFile(): string
     {
-        $string = '';
+        $file = tempnam(sys_get_temp_dir(), 'http_factory_tests_');
 
-        $stream = $this->factory->createStream($string);
+        if($file === false){
+            throw new RuntimeException('could not create temp file');
+        }
 
-        $this->assertStream($stream, $string);
-    }
+        static::$tempFiles[] = $file;
 
-    public function testCreateStreamWithASCIIString()
-    {
-        $string = 'would you like some crumpets?';
-
-        $stream = $this->factory->createStream($string);
-
-        $this->assertStream($stream, $string);
-    }
-
-    public function testCreateStreamWithMultiByteMultiLineString()
-    {
-        $string = "would you\r\nlike some\n\u{1F950}?";
-
-        $stream = $this->factory->createStream($string);
-
-        $this->assertStream($stream, $string);
+        return $file;
     }
 
     /**
-     * @noinspection PhpUnreachableStatementInspection
+     * @return resource
      */
-    public function testCreateStreamCursorPosition()
+    protected function createTemporaryResource(string $content = null)
+    {
+        $file     = $this->createTemporaryFile();
+        $resource = fopen($file, 'r+');
+
+        if($content){
+            fwrite($resource, $content);
+            rewind($resource);
+        }
+
+        return $resource;
+    }
+
+    public function testCreateStreamWithoutArgument(): void
+    {
+        $stream = $this->streamFactory->createStream();
+
+        static::assertSame('', (string) $stream);
+    }
+
+    public function testCreateStreamWithEmptyString(): void
+    {
+        $string = '';
+
+        $stream = $this->streamFactory->createStream($string);
+
+        static::assertSame($string, (string) $stream);
+    }
+
+    public function testCreateStreamWithASCIIString(): void
+    {
+        $string = 'would you like some crumpets?';
+
+        $stream = $this->streamFactory->createStream($string);
+
+        static::assertSame($string, (string) $stream);
+    }
+
+    public function testCreateStreamWithMultiByteMultiLineString(): void
+    {
+        $string = "would you\r\nlike some\n\u{1F950}?";
+
+        $stream = $this->streamFactory->createStream($string);
+
+        static::assertSame($string, (string) $stream);
+    }
+
+    /**
+     * @noinspection PhpUnreachableStatementInspection, PhpUnitTestFailedLineInspection
+     */
+    public function testCreateStreamCursorPosition(): void
     {
         $this->markTestIncomplete('This behaviour has not been specified by PHP-FIG yet.');
 
         $string = 'would you like some crumpets?';
 
-        $stream = $this->factory->createStream($string);
+        $stream = $this->streamFactory->createStream($string);
 
-        static::assertSame(strlen($string), $stream->tell());
+        static::assertSame(29, $stream->tell());
     }
 
-    public function testCreateStreamFromFile()
+    public function testCreateStreamFromFile(): void
     {
-        $string = 'would you like some crumpets?';
+        $string   = 'would you like some crumpets?';
         $filename = $this->createTemporaryFile();
 
         file_put_contents($filename, $string);
 
-        $stream = $this->factory->createStreamFromFile($filename);
+        $stream = $this->streamFactory->createStreamFromFile($filename);
 
-        $this->assertStream($stream, $string);
+        static::assertSame($string, (string) $stream);
     }
 
-    public function testCreateStreamFromNonExistingFile()
+    public function testCreateStreamFromNonExistingFile(): void
     {
         $filename = $this->createTemporaryFile();
+
         unlink($filename);
 
         $this->expectException(RuntimeException::class);
-        $this->factory->createStreamFromFile($filename);
+        $this->streamFactory->createStreamFromFile($filename);
     }
 
-    public function testCreateStreamFromInvalidFileName()
+    public function testCreateStreamFromInvalidFileName(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->factory->createStreamFromFile('');
+        $this->streamFactory->createStreamFromFile('');
     }
 
-    public function testCreateStreamFromFileIsReadOnlyByDefault()
+    public function testCreateStreamFromFileIsReadOnlyByDefault(): void
     {
-        $string = 'would you like some crumpets?';
+        $string   = 'would you like some crumpets?';
         $filename = $this->createTemporaryFile();
 
-        $stream = $this->factory->createStreamFromFile($filename);
+        $stream = $this->streamFactory->createStreamFromFile($filename);
 
         $this->expectException(RuntimeException::class);
         $stream->write($string);
     }
 
-    public function testCreateStreamFromFileWithWriteOnlyMode()
+    public function testCreateStreamFromFileWithWriteOnlyMode(): void
     {
         $filename = $this->createTemporaryFile();
 
-        $stream = $this->factory->createStreamFromFile($filename, 'w');
+        $stream = $this->streamFactory->createStreamFromFile($filename, 'w');
 
         $this->expectException(RuntimeException::class);
         $stream->read(1);
     }
 
-    public function testCreateStreamFromFileWithNoMode()
+    public function testCreateStreamFromFileWithNoMode(): void
     {
         $filename = $this->createTemporaryFile();
 
         $this->expectException(Exception::class);
-        $this->factory->createStreamFromFile($filename, '');
+        $this->streamFactory->createStreamFromFile($filename, '');
     }
 
-    public function testCreateStreamFromFileWithInvalidMode()
+    public function testCreateStreamFromFileWithInvalidMode(): void
     {
         $filename = $this->createTemporaryFile();
 
         $this->expectException(Exception::class);
-        $this->factory->createStreamFromFile($filename, "\u{2620}");
+        $this->streamFactory->createStreamFromFile($filename, "\u{2620}");
     }
 
-    public function testCreateStreamFromFileCursorPosition()
+    public function testCreateStreamFromFileCursorPosition(): void
     {
-        $string = 'would you like some crumpets?';
+        $string   = 'would you like some crumpets?';
         $filename = $this->createTemporaryFile();
 
         file_put_contents($filename, $string);
 
-        $resource = fopen($filename, 'r');
+        $resource  = fopen($filename, 'r');
         $fopenTell = ftell($resource);
+
         fclose($resource);
 
-        $stream = $this->factory->createStreamFromFile($filename);
+        $stream = $this->streamFactory->createStreamFromFile($filename);
 
         static::assertSame($fopenTell, $stream->tell());
     }
 
-    public function testCreateStreamFromResource()
+    public function testCreateStreamFromResource(): void
     {
-        $string = 'would you like some crumpets?';
+        $string   = 'would you like some crumpets?';
         $resource = $this->createTemporaryResource($string);
 
-        $stream = $this->factory->createStreamFromResource($resource);
+        $stream = $this->streamFactory->createStreamFromResource($resource);
 
-        $this->assertStream($stream, $string);
+        static::assertSame($string, (string) $stream);
     }
 
-    public function testCreateStreamFromResourceCursorPosition()
+    public static function cursorPositionProvider():array
     {
         $string = 'would you like some crumpets?';
 
-        $resource1 = $this->createTemporaryResource($string);
-        fseek($resource1, 0, SEEK_SET);
-        $stream1 = $this->factory->createStreamFromResource($resource1);
-        static::assertSame(0, $stream1->tell());
-
-        $resource2 = $this->createTemporaryResource($string);
-        fseek($resource2, 0, SEEK_END);
-        $stream2 = $this->factory->createStreamFromResource($resource2);
-        static::assertSame(strlen($string), $stream2->tell());
-
-        $resource3 = $this->createTemporaryResource($string);
-        fseek($resource3, 15, SEEK_SET);
-        $stream3 = $this->factory->createStreamFromResource($resource3);
-        static::assertSame(15, $stream3->tell());
+        return [
+            'SEEK_SET, 0'  => [$string,  0, SEEK_SET,  0],
+            'SEEK_END, 0'  => [$string,  0, SEEK_END, 29],
+            'SEEK_SET, 15' => [$string, 15, SEEK_SET, 15],
+        ];
     }
+
+    #[DataProvider('cursorPositionProvider')]
+    public function testCreateStreamFromResourceCursorPosition(string $string, int $offset, int $whence, int $expected): void
+    {
+        $resource = $this->createTemporaryResource($string);
+
+        fseek($resource, $offset, $whence);
+
+        $stream = $this->streamFactory->createStreamFromResource($resource);
+
+        static::assertSame($expected, $stream->tell());
+    }
+
 }

@@ -1,45 +1,52 @@
 <?php
+/**
+ * @author       http-factory-tests Contributors
+ * @license      MIT
+ * @link         https://github.com/http-interop/http-factory-tests
+ *
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\UriFactoryInterface;
+use function class_exists;
+use function defined;
 
-abstract class RequestFactoryTestCase extends TestCase
+class RequestFactoryTestCase extends TestCase
 {
-    /**
-     * @var RequestFactoryInterface
-     */
-    protected $factory;
 
-    /**
-     * @return RequestFactoryInterface
-     */
-    abstract protected function createRequestFactory();
-
-    /**
-     * @param string $uri
-     *
-     * @return UriInterface
-     */
-    abstract protected function createUri($uri);
+    protected RequestFactoryInterface $requestFactory;
+    protected UriFactoryInterface     $uriFactory;
 
     public function setUp(): void
     {
-        $this->factory = $this->createRequestFactory();
+        $this->requestFactory = $this->createRequestFactory();
+        $this->uriFactory     = $this->createUriFactory();
     }
 
-    protected function assertRequest($request, $method, $uri)
+    protected function createRequestFactory(): RequestFactoryInterface
     {
-        static::assertInstanceOf(RequestInterface::class, $request);
-        static::assertSame($method, $request->getMethod());
-        static::assertSame($uri, (string) $request->getUri());
+        if(!defined('REQUEST_FACTORY') || !class_exists(REQUEST_FACTORY)){
+            static::markTestSkipped('REQUEST_FACTORY class name not provided');
+        }
+
+        return new (REQUEST_FACTORY);
     }
 
-    public static function dataMethods()
+    protected function createUriFactory(): UriFactoryInterface
+    {
+        if(!defined('URI_FACTORY') || !class_exists(URI_FACTORY)){
+            static::markTestSkipped('URI_FACTORY class name not provided');
+        }
+
+        return new (URI_FACTORY);
+    }
+
+    public static function dataMethods(): array
     {
         return [
             'GET'     => ['GET'],
@@ -52,22 +59,23 @@ abstract class RequestFactoryTestCase extends TestCase
     }
 
     #[DataProvider('dataMethods')]
-    public function testCreateRequest($method)
+    public function testCreateRequest(string $method): void
     {
-        $uri = 'http://example.com/';
+        $uri     = 'https://example.com/';
+        $request = $this->requestFactory->createRequest($method, $uri);
 
-        $request = $this->factory->createRequest($method, $uri);
-
-        $this->assertRequest($request, $method, $uri);
+        static::assertSame($method, $request->getMethod());
+        static::assertSame($uri, (string) $request->getUri());
     }
 
-    public function testCreateRequestWithUri()
+    public function testCreateRequestWithUri(): void
     {
-        $method = 'GET';
-        $uri = 'http://example.com/';
+        $method  = 'GET';
+        $uri     = 'https://example.com/';
+        $request = $this->requestFactory->createRequest($method, $this->uriFactory->createUri($uri));
 
-        $request = $this->factory->createRequest($method, $this->createUri($uri));
-
-        $this->assertRequest($request, $method, $uri);
+        static::assertSame($method, $request->getMethod());
+        static::assertSame($uri, (string) $request->getUri());
     }
+
 }

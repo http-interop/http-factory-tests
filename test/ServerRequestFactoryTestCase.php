@@ -1,165 +1,169 @@
 <?php
 /**
- * @noinspection PhpArrayWriteIsNotUsedInspection
+ * @author       http-factory-tests Contributors
+ * @license      MIT
+ * @link         https://github.com/http-interop/http-factory-tests
+ *
+ * @noinspection PhpUndefinedConstantInspection, PhpArrayWriteIsNotUsedInspection
  */
 
 namespace Interop\Http\Factory;
 
+use Generator;
 use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestFactoryInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\UriFactoryInterface;
+use function class_exists;
+use function defined;
 use const UPLOAD_ERR_OK;
 
-abstract class ServerRequestFactoryTestCase extends TestCase
+class ServerRequestFactoryTestCase extends TestCase
 {
-    /**
-     * @var ServerRequestFactoryInterface
-     */
-    protected $factory;
 
-    /**
-     * @return ServerRequestFactoryInterface
-     */
-    abstract protected function createServerRequestFactory();
-
-    /**
-     * @param string $uri
-     *
-     * @return UriInterface
-     */
-    abstract protected function createUri($uri);
+    protected ServerRequestFactoryInterface $serverRequestFactory;
+    protected UriFactoryInterface           $uriFactory;
 
     public function setUp(): void
     {
-        $this->factory = $this->createServerRequestFactory();
+        $this->serverRequestFactory = $this->createServerRequestFactory();
+        $this->uriFactory           = $this->createUriFactory();
     }
 
-    protected function assertServerRequest($request, $method, $uri)
+    protected function createServerRequestFactory(): ServerRequestFactoryInterface
     {
-        static::assertInstanceOf(ServerRequestInterface::class, $request);
+        if(!defined('SERVER_REQUEST_FACTORY') || !class_exists(SERVER_REQUEST_FACTORY)){
+            static::markTestSkipped('SERVER_REQUEST_FACTORY class name not provided');
+        }
+
+        return new (SERVER_REQUEST_FACTORY);
+    }
+
+    protected function createUriFactory(): UriFactoryInterface
+    {
+        if(!defined('URI_FACTORY') || !class_exists(URI_FACTORY)){
+            static::markTestSkipped('URI_FACTORY class name not provided');
+        }
+
+        return new (URI_FACTORY);
+    }
+
+    protected static function httpMethods(): array
+    {
+        return [
+            'GET',
+            'POST',
+            'PATCH',
+            'PUT',
+            'DELETE',
+            'OPTIONS',
+            'HEAD',
+        ];
+    }
+
+    public static function dataServer(): Generator
+    {
+        foreach(static::httpMethods() as $method){
+            yield $method => [$method, 'https://example.org/test?foo=1&bar=true', 'example.org', '/test', 'foo=1&bar=true'];
+        }
+    }
+
+    #[DataProvider('dataServer')]
+    public function testCreateServerRequest(string $method, string $uri): void
+    {
+        $request = $this->serverRequestFactory->createServerRequest($method, $uri);
+
         static::assertSame($method, $request->getMethod());
         static::assertSame($uri, (string) $request->getUri());
     }
 
-    public static function dataMethods()
+    #[DataProvider('dataServer')]
+    public function testCreateServerRequestFromArray(string $method, string $uri, string $host, string $path, string $query): void
     {
-        return [
-            ['GET'],
-            ['POST'],
-            ['PUT'],
-            ['DELETE'],
-            ['OPTIONS'],
-            ['HEAD'],
+        $server = [
+            'REQUEST_METHOD' => $method,
+            'HTTP_HOST'      => $host,
+            'REQUEST_URI'    => $path,
+            'QUERY_STRING'   => $query,
         ];
-    }
 
-    public static function dataServer()
-    {
-        $data = [];
+        $request = $this->serverRequestFactory->createServerRequest($method, $uri, $server);
 
-        foreach (static::dataMethods() as $methodData) {
-            $data[$methodData[0]] = [
-                [
-                    'REQUEST_METHOD' => $methodData[0],
-                    'REQUEST_URI' => '/test',
-                    'QUERY_STRING' => 'foo=1&bar=true',
-                    'HTTP_HOST' => 'example.org',
-                ]
-            ];
-        }
-
-        return $data;
+        static::assertSame($method, $request->getMethod());
+        static::assertSame($uri, (string) $request->getUri());
     }
 
     #[DataProvider('dataServer')]
-    public function testCreateServerRequest($server)
+    public function testCreateServerRequestWithUriObject(string $method, string $uri): void
     {
-        $method = $server['REQUEST_METHOD'];
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
+        $request = $this->serverRequestFactory->createServerRequest($method, $this->uriFactory->createUri($uri));
 
-        $request = $this->factory->createServerRequest($method, $uri);
-
-        $this->assertServerRequest($request, $method, $uri);
-    }
-
-    #[DataProvider('dataServer')]
-    public function testCreateServerRequestFromArray(array $server)
-    {
-        $method = $server['REQUEST_METHOD'];
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
-
-        $request = $this->factory->createServerRequest($method, $uri, $server);
-
-        $this->assertServerRequest($request, $method, $uri);
-    }
-
-    #[DataProvider('dataServer')]
-    public function testCreateServerRequestWithUriObject($server)
-    {
-        $method = $server['REQUEST_METHOD'];
-        $uri = "http://{$server['HTTP_HOST']}{$server['REQUEST_URI']}?{$server['QUERY_STRING']}";
-
-        $request = $this->factory->createServerRequest($method, $this->createUri($uri));
-
-        $this->assertServerRequest($request, $method, $uri);
+        static::assertSame($method, $request->getMethod());
+        static::assertSame($uri, (string) $request->getUri());
     }
 
     #[BackupGlobals(true)]
-    public function testCreateServerRequestDoesNotReadServerSuperglobal()
+    public function testCreateServerRequestDoesNotReadServerSuperglobal(): void
     {
         $_SERVER = ['HTTP_X_FOO' => 'bar'];
 
         $server = [
             'REQUEST_METHOD' => 'PUT',
-            'REQUEST_URI' => '/test',
-            'QUERY_STRING' => 'super=0',
-            'HTTP_HOST' => 'example.org',
+            'REQUEST_URI'    => '/test',
+            'QUERY_STRING'   => 'super=0',
+            'HTTP_HOST'      => 'example.org',
         ];
 
-        $request = $this->factory->createServerRequest('PUT', '/test', $server);
-
+        $request      = $this->serverRequestFactory->createServerRequest('PUT', '/test', $server);
         $serverParams = $request->getServerParams();
 
         static::assertNotEquals($_SERVER, $serverParams);
         static::assertArrayNotHasKey('HTTP_X_FOO', $serverParams);
     }
 
-    public function testCreateServerRequestDoesNotReadCookieSuperglobal()
+    public function testCreateServerRequestDoesNotReadCookieSuperglobal(): void
     {
         $_COOKIE = ['foo' => 'bar'];
 
-        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
+        $request = $this->serverRequestFactory->createServerRequest('POST', 'https://example.org/test');
 
         static::assertEmpty($request->getCookieParams());
     }
 
-    public function testCreateServerRequestDoesNotReadGetSuperglobal()
+    public function testCreateServerRequestDoesNotReadGetSuperglobal(): void
     {
         $_GET = ['foo' => 'bar'];
 
-        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
+        $request = $this->serverRequestFactory->createServerRequest('POST', 'https://example.org/test');
 
         static::assertEmpty($request->getQueryParams());
     }
 
-    public function testCreateServerRequestDoesNotReadFilesSuperglobal()
+    public function testCreateServerRequestDoesNotReadFilesSuperglobal(): void
     {
-        $_FILES = [['name' => 'foobar.dat', 'type' => 'application/octet-stream', 'tmp_name' => '/tmp/php45sd3f', 'error' => UPLOAD_ERR_OK, 'size' => 4]];
+        $_FILES = [
+            [
+                'name'     => 'foobar.dat',
+                'type'     => 'application/octet-stream',
+                'tmp_name' => '/tmp/php45sd3f',
+                'error'    => UPLOAD_ERR_OK,
+                'size'     => 4,
+            ],
+        ];
 
-        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
+        $request = $this->serverRequestFactory->createServerRequest('POST', 'https://example.org/test');
 
         static::assertEmpty($request->getUploadedFiles());
     }
 
-    public function testCreateServerRequestDoesNotReadPostSuperglobal()
+    public function testCreateServerRequestDoesNotReadPostSuperglobal(): void
     {
         $_POST = ['foo' => 'bar'];
 
-        $request = $this->factory->createServerRequest('POST', 'http://example.org/test');
+        $request = $this->serverRequestFactory->createServerRequest('POST', 'https://example.org/test');
 
         static::assertEmpty($request->getParsedBody());
     }
+
 }
