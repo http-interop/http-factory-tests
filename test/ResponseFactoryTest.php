@@ -16,7 +16,7 @@ final class ResponseFactoryTest extends ResponseFactoryTestCase
     protected function createResponseFactory()
     {
         if (!defined('RESPONSE_FACTORY') || !class_exists(RESPONSE_FACTORY)) {
-            self::markTestSkipped('Response factory class name not provided');
+            self::markTestSkipped('RESPONSE_FACTORY class name not provided');
         }
 
         return new (RESPONSE_FACTORY);

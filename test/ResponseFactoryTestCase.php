@@ -33,10 +33,10 @@ abstract class ResponseFactoryTestCase extends TestCase
     public static function dataCodes()
     {
         return [
-            '200' => [200],
-            '301' => [301],
-            '404' => [404],
-            '500' => [500],
+            'HTTP/200' => [200],
+            'HTTP/301' => [301],
+            'HTTP/404' => [404],
+            'HTTP/500' => [500],
         ];
     }
 

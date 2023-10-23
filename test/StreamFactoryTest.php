@@ -16,7 +16,7 @@ final class StreamFactoryTest extends StreamFactoryTestCase
     protected function createStreamFactory()
     {
         if (!defined('STREAM_FACTORY') || !class_exists(STREAM_FACTORY)) {
-            self::markTestSkipped('Stream factory class name not provided');
+            self::markTestSkipped('STREAM_FACTORY class name not provided');
         }
 
         return new (STREAM_FACTORY);
