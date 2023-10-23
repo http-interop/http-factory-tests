@@ -16,7 +16,7 @@ final class RequestFactoryTest extends RequestFactoryTestCase
     protected function createRequestFactory()
     {
         if (!defined('REQUEST_FACTORY') || !class_exists(REQUEST_FACTORY)) {
-            self::markTestSkipped('Request factory class name not provided');
+            self::markTestSkipped('REQUEST_FACTORY class name not provided');
         }
 
         return new (REQUEST_FACTORY);
@@ -27,8 +27,8 @@ final class RequestFactoryTest extends RequestFactoryTestCase
      */
     protected function createUri($uri)
     {
-        if (!defined('URI_FACTORY')) {
-            self::markTestSkipped('URI factory class name not provided');
+        if (!defined('URI_FACTORY') || !class_exists(URI_FACTORY)) {
+            self::markTestSkipped('URI_FACTORY class name not provided');
         }
 
         return (new (URI_FACTORY))->createUri($uri);

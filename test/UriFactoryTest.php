@@ -16,7 +16,7 @@ final class UriFactoryTest extends UriFactoryTestCase
     protected function createUriFactory()
     {
         if (!defined('URI_FACTORY') || !class_exists(URI_FACTORY)) {
-            self::markTestSkipped('URI factory class name not provided');
+            self::markTestSkipped('URI_FACTORY class name not provided');
         }
 
         return new (URI_FACTORY);

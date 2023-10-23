@@ -16,7 +16,7 @@ final class UploadedFileFactoryTest extends UploadedFileFactoryTestCase
     protected function createUploadedFileFactory()
     {
         if (!defined('UPLOADED_FILE_FACTORY') || !class_exists(UPLOADED_FILE_FACTORY)) {
-            self::markTestSkipped('Uploaded File factory class name not provided');
+            self::markTestSkipped('UPLOADED_FILE_FACTORY class name not provided');
         }
 
         return new (UPLOADED_FILE_FACTORY);
@@ -24,8 +24,8 @@ final class UploadedFileFactoryTest extends UploadedFileFactoryTestCase
 
     protected function createStream($content)
     {
-        if (!defined('STREAM_FACTORY')) {
-            self::markTestSkipped('STREAM factory class name not provided');
+        if (!defined('STREAM_FACTORY') || !class_exists(STREAM_FACTORY)) {
+            self::markTestSkipped('STREAM_FACTORY class name not provided');
         }
 
         return (new (STREAM_FACTORY))->createStream($content);
