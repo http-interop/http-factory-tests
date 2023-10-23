@@ -13,10 +13,14 @@
         {
             "name": "PHP-FIG",
             "homepage": "https://www.php-fig.org/"
+        },
+        {
+            "name": "Contributors",
+            "homepage": "https://github.com/http-interop/http-factory-tests/graphs/contributors"
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "psr/http-factory": "^1.0",
         "phpunit/phpunit": "^10.0"
     },

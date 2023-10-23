@@ -2,6 +2,7 @@
 
 namespace Interop\Http\Factory;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
@@ -33,26 +34,24 @@ abstract class RequestFactoryTestCase extends TestCase
 
     protected function assertRequest($request, $method, $uri)
     {
-        $this->assertInstanceOf(RequestInterface::class, $request);
-        $this->assertSame($method, $request->getMethod());
-        $this->assertSame($uri, (string) $request->getUri());
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame($method, $request->getMethod());
+        static::assertSame($uri, (string) $request->getUri());
     }
 
     public static function dataMethods()
     {
         return [
-            ['GET'],
-            ['POST'],
-            ['PUT'],
-            ['DELETE'],
-            ['OPTIONS'],
-            ['HEAD'],
+            'GET'     => ['GET'],
+            'POST'    => ['POST'],
+            'PUT'     => ['PUT'],
+            'DELETE'  => ['DELETE'],
+            'OPTIONS' => ['OPTIONS'],
+            'HEAD'    => ['HEAD'],
         ];
     }
 
-    /**
-     * @dataProvider dataMethods
-     */
+    #[DataProvider('dataMethods')]
     public function testCreateRequest($method)
     {
         $uri = 'http://example.com/';

@@ -1,6 +1,12 @@
 <?php
+/**
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
+
+use function class_exists;
+use function defined;
 
 final class StreamFactoryTest extends StreamFactoryTestCase
 {
@@ -9,12 +15,10 @@ final class StreamFactoryTest extends StreamFactoryTestCase
      */
     protected function createStreamFactory()
     {
-        if (!defined('STREAM_FACTORY')) {
-            $this->markTestSkipped('Stream factory class name not provided');
+        if (!defined('STREAM_FACTORY') || !class_exists(STREAM_FACTORY)) {
+            self::markTestSkipped('Stream factory class name not provided');
         }
 
-        $factoryClass = STREAM_FACTORY;
-
-        return new $factoryClass();
+        return new (STREAM_FACTORY);
     }
 }

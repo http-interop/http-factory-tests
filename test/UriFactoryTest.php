@@ -1,6 +1,12 @@
 <?php
+/**
+ * @noinspection PhpUndefinedConstantInspection
+ */
 
 namespace Interop\Http\Factory;
+
+use function class_exists;
+use function defined;
 
 final class UriFactoryTest extends UriFactoryTestCase
 {
@@ -9,12 +15,10 @@ final class UriFactoryTest extends UriFactoryTestCase
      */
     protected function createUriFactory()
     {
-        if (!defined('URI_FACTORY')) {
-            $this->markTestSkipped('URI factory class name not provided');
+        if (!defined('URI_FACTORY') || !class_exists(URI_FACTORY)) {
+            self::markTestSkipped('URI factory class name not provided');
         }
 
-        $factoryClass = URI_FACTORY;
-
-        return new $factoryClass();
+        return new (URI_FACTORY);
     }
 }

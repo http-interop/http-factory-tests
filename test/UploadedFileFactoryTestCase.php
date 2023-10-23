@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use function strlen;
+use const UPLOAD_ERR_NO_FILE;
+use const UPLOAD_ERR_OK;
 
 abstract class UploadedFileFactoryTestCase extends TestCase
 {
@@ -37,12 +40,12 @@ abstract class UploadedFileFactoryTestCase extends TestCase
         $clientFilename = null,
         $clientMediaType = null
     ) {
-        $this->assertInstanceOf(UploadedFileInterface::class, $file);
-        $this->assertSame($content, (string) $file->getStream());
-        $this->assertSame($size ?: strlen($content), $file->getSize());
-        $this->assertSame($error ?: UPLOAD_ERR_OK, $file->getError());
-        $this->assertSame($clientFilename, $file->getClientFilename());
-        $this->assertSame($clientMediaType, $file->getClientMediaType());
+        static::assertInstanceOf(UploadedFileInterface::class, $file);
+        static::assertSame($content, (string) $file->getStream());
+        static::assertSame(($size ?? strlen($content)), $file->getSize());
+        static::assertSame(($error ?? UPLOAD_ERR_OK), $file->getError());
+        static::assertSame($clientFilename, $file->getClientFilename());
+        static::assertSame($clientMediaType, $file->getClientMediaType());
     }
 
     public function testCreateUploadedFileWithClientFilenameAndMediaType()
@@ -67,7 +70,7 @@ abstract class UploadedFileFactoryTestCase extends TestCase
 
         // Cannot use assertUploadedFile() here because the error prevents
         // fetching the content stream.
-        $this->assertInstanceOf(UploadedFileInterface::class, $file);
-        $this->assertSame($error, $file->getError());
+        static::assertInstanceOf(UploadedFileInterface::class, $file);
+        static::assertSame($error, $file->getError());
     }
 }
