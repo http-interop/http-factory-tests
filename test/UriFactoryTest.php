@@ -1,24 +1,51 @@
 <?php
 /**
+ * @author       http-factory-tests Contributors
+ * @license      MIT
+ * @link         https://github.com/http-interop/http-factory-tests
+ *
  * @noinspection PhpUndefinedConstantInspection
  */
 
 namespace Interop\Http\Factory;
 
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriFactoryInterface;
 use function class_exists;
 use function defined;
 
-final class UriFactoryTest extends UriFactoryTestCase
+class UriFactoryTest extends TestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function createUriFactory()
+
+    protected UriFactoryInterface $uriFactory;
+
+    public function setUp(): void
     {
-        if (!defined('URI_FACTORY') || !class_exists(URI_FACTORY)) {
-            self::markTestSkipped('URI_FACTORY class name not provided');
+        $this->uriFactory = $this->createUriFactory();
+    }
+
+    protected function createUriFactory(): UriFactoryInterface
+    {
+        if(!defined('URI_FACTORY') || !class_exists(URI_FACTORY)){
+            static::markTestSkipped('URI_FACTORY class name not provided');
         }
 
         return new (URI_FACTORY);
     }
+
+    public function testCreateUri(): void
+    {
+        $uriString = 'https://example.com/';
+        $uri       = $this->uriFactory->createUri($uriString);
+
+        static::assertSame($uriString, (string) $uri);
+    }
+
+    public function testExceptionWhenUriIsInvalid(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->uriFactory->createUri(':');
+    }
+
 }
